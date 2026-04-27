@@ -11,12 +11,33 @@ import {
 } from "@/components/ui/dialog"
 import { CpuArchitecture } from "@/components/ui/cpu-architecture";
 
+import { AnimatedDock } from "@/components/ui/animated-dock";
+
 export function TopNav() {
   const { address, connectWallet, disconnectWallet, isConnecting } = useWeb3();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname.startsWith(path);
+
+  const dockItems = [
+    {
+      link: "/dashboard",
+      Icon: <LayoutDashboard className="w-5 h-5" />,
+      isActive: isActive('/dashboard'),
+    },
+    {
+      link: "/chat",
+      Icon: <MessageSquare className="w-5 h-5" />,
+      isActive: isActive('/chat'),
+      badge: 15,
+    },
+    {
+      link: "/profile",
+      Icon: <User className="w-5 h-5" />,
+      isActive: isActive('/profile'),
+    },
+  ];
 
   return (
     <>
@@ -33,7 +54,10 @@ export function TopNav() {
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-6 mr-4">
             <Link to="/dashboard" className={`text-sm font-medium transition-colors ${isActive('/dashboard') ? 'text-white' : 'text-neutral-400 hover:text-white'}`}>Dashboard</Link>
-            <Link to="/chat" className={`text-sm font-medium transition-colors ${isActive('/chat') ? 'text-white' : 'text-neutral-400 hover:text-white'}`}>Chat</Link>
+            <Link to="/chat" className={`text-sm font-medium transition-colors relative flex items-center gap-1.5 ${isActive('/chat') ? 'text-white' : 'text-neutral-400 hover:text-white'}`}>
+              Chat
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500 text-[10px] font-bold text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]">15</span>
+            </Link>
             <Link to="/profile" className={`text-sm font-medium transition-colors ${isActive('/profile') ? 'text-white' : 'text-neutral-400 hover:text-white'}`}>Profile</Link>
           </div>
           
@@ -136,20 +160,8 @@ export function TopNav() {
       {/* Background Gradient fade for floating pill */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none z-40" />
       
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 h-16 w-[90%] max-w-[340px] bg-neutral-900/90 backdrop-blur-xl border border-neutral-700/50 rounded-full flex items-center justify-around z-50 px-4 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
-        <Link to="/dashboard" className={`flex flex-col items-center justify-center h-full px-4 space-y-1 ${isActive('/dashboard') ? 'text-white' : 'text-neutral-500 hover:text-neutral-300'}`}>
-          <LayoutDashboard className={`w-5 h-5 ${isActive('/dashboard') ? 'text-white' : ''}`} />
-          <span className="text-[10px] font-medium">Dashboard</span>
-        </Link>
-        <Link to="/chat" className={`flex flex-col items-center justify-center h-full px-4 space-y-1 relative ${isActive('/chat') ? 'text-white' : 'text-neutral-500 hover:text-neutral-300'}`}>
-          <MessageSquare className={`w-5 h-5 ${isActive('/chat') ? 'text-white' : ''}`} />
-          <span className="text-[10px] font-medium">Chat</span>
-          <div className="absolute top-3 right-3.5 w-2 h-2 bg-indigo-500 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
-        </Link>
-        <Link to="/profile" className={`flex flex-col items-center justify-center h-full px-4 space-y-1 ${isActive('/profile') ? 'text-white' : 'text-neutral-500 hover:text-neutral-300'}`}>
-          <User className={`w-5 h-5 ${isActive('/profile') ? 'text-white' : ''}`} />
-          <span className="text-[10px] font-medium">Profile</span>
-        </Link>
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
+        <AnimatedDock items={dockItems} />
       </div>
 
       {/* Global Connecting Overlay */}

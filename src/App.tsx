@@ -12,7 +12,7 @@ function AnimatedRoutes() {
   const location = useLocation();
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location} {...({ key: location.pathname } as any)}>
         <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
         <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
         <Route path="/chat/:id?" element={<PageTransition><Chat /></PageTransition>} />

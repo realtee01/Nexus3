@@ -4,6 +4,7 @@ import { useWeb3 } from "@/lib/web3";
 import { Navigate } from "react-router-dom";
 import { Fingerprint, Send, Zap } from "lucide-react";
 import CursorFollow from "@/components/ui/cursor-follow";
+import { Footer } from "@/components/ui/footer-section";
 
 const web3Images = [
   {
@@ -90,6 +91,8 @@ export function Landing() {
           </div>
         </CursorFollow>
       </div>
+
+      <Footer />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWeb3 } from "@/lib/web3";
 import { formatAddress } from "@/lib/utils";
@@ -7,8 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 // Mock Data
 const MOCK_CONTACTS = [
-  { id: '0x1234567890abcdef1234567890abcdef12345ef9', name: '', unread: 2, lastMessage: 'Hey! Did you send the ETH?' },
-  { id: '0x89abcdef1234567890abcdef1234567890abc4a2', name: 'Vitalik', unread: 0, lastMessage: 'Thanks for the payment ðŸ™Œ' },
+  { id: '0x1234567890abcdef1234567890abcdef12345ef9', name: '', unread: 3, lastMessage: 'Hey! Did you send the ETH?', time: '2m ago' },
+  { id: '0x89abcdef1234567890abcdef1234567890abc4a2', name: 'Vitalik', unread: 0, lastMessage: 'Thanks for the payment 🙏', time: '1h ago' },
+  { id: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', name: 'Satoshi', unread: 12, lastMessage: 'The whitepaper is out.', time: 'Just now' },
 ];
 
 const MOCK_MESSAGES = [
@@ -28,8 +29,45 @@ export function Chat() {
   const { address } = useWeb3();
   const [message, setMessage] = useState('');
   const [amount, setAmount] = useState('');
+  const [messages, setMessages] = useState<any[]>(MOCK_MESSAGES);
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping, id]);
 
   const activeContact = MOCK_CONTACTS.find(c => c.id === id);
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
+    
+    const newMsg = {
+        id: Date.now(),
+        sender: 'me',
+        text: message.trim(),
+        timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+    };
+    
+    setMessages(prev => [...prev, newMsg]);
+    setMessage('');
+    
+    // Simulate typing and auto-reply
+    setIsTyping(true);
+    setTimeout(() => {
+      setIsTyping(false);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: id as string,
+        text: 'Got your message! I will get back to you shortly.',
+        timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+      }]);
+    }, 1500);
+  };
 
   return (
     <div className="flex-1 flex overflow-hidden w-full max-w-7xl mx-auto md:border-l md:border-r border-neutral-900 bg-black">
@@ -56,14 +94,18 @@ export function Chat() {
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium truncate">{contact.name || formatAddress(contact.id)}</h3>
-                  <span className="text-xs text-neutral-500">10:06 AM</span>
+                  <span className={`text-[10px] ${contact.unread > 0 ? 'text-indigo-400 font-bold' : 'text-neutral-500'}`}>
+                    {contact.time}
+                  </span>
                 </div>
-                <p className="text-sm text-neutral-400 truncate">{contact.lastMessage}</p>
+                <p className={`text-sm truncate ${contact.unread > 0 ? 'text-neutral-200 font-medium' : 'text-neutral-400'}`}>
+                  {contact.lastMessage}
+                </p>
               </div>
               {contact.unread > 0 && (
-                 <div className="w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
-                  {contact.unread}
-                </div>
+                 <div className="min-w-[18px] h-[18px] bg-indigo-500 rounded-full flex items-center justify-center text-[10px] font-black text-white px-1 shadow-[0_0_10px_rgba(99,102,241,0.5)] flex-shrink-0">
+                   {contact.unread > 99 ? '99+' : contact.unread}
+                 </div>
               )}
             </button>
           ))}
@@ -96,60 +138,76 @@ export function Chat() {
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-5 pb-4">
-               {MOCK_MESSAGES.map((msg) => {
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-6 pb-4 scroll-smooth">
+               {messages.map((msg) => {
                  if (msg.type === 'system') {
                    return (
-                     <div key={msg.id} className="flex flex-col items-center justify-center my-2">
+                     <div key={msg.id} className="flex flex-col items-center justify-center my-4">
                        <div className="bg-neutral-900/60 border border-neutral-800 backdrop-blur-sm px-4 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
                          <Info className="w-4 h-4 text-neutral-400" />
                          <span className="text-xs font-medium text-neutral-300">{msg.text}</span>
                        </div>
-                       <span className="text-[10px] text-neutral-500 mt-1">{msg.timestamp}</span>
+                       <span className="text-[10px] text-neutral-500 mt-1.5">{msg.timestamp}</span>
                      </div>
                    );
                  }
 
                  return (
-                 <div key={msg.id} className={`flex flex-col ${msg.sender === 'me' ? 'items-end' : 'items-start'}`}>
+                 <div key={msg.id} className={`flex flex-col ${msg.sender === 'me' ? 'items-end' : 'items-start'} group max-w-full`}>
                    {msg.type === 'tx' ? (
                      <div className={`p-0 rounded-2xl max-w-[85%] sm:max-w-md shadow-xl overflow-hidden ${msg.sender === 'me' ? 'bg-indigo-950/40 border border-indigo-900/50' : 'bg-neutral-900 border border-neutral-800'}`}>
-                        <div className="p-4 flex flex-col items-center">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(0,0,0,0.2)] ${
+                        <div className="p-5 flex flex-col items-center">
+                          <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(0,0,0,0.15)] ${
                             msg.status === 'success' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
                             msg.status === 'pending' ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' :
                             'bg-red-500/20 text-red-500 border border-red-500/30'
                           }`}>
-                            {msg.status === 'success' && <CheckCircle2 className="w-6 h-6" />}
-                            {msg.status === 'pending' && <Clock className="w-6 h-6 animate-pulse" />}
-                            {msg.status === 'failed' && <AlertTriangle className="w-6 h-6" />}
+                            {msg.status === 'success' && <CheckCircle2 className="w-7 h-7" />}
+                            {msg.status === 'pending' && <Clock className="w-7 h-7 animate-pulse" />}
+                            {msg.status === 'failed' && <AlertTriangle className="w-7 h-7" />}
                           </div>
                           
-                          <p className="text-sm text-neutral-400 font-medium tracking-wide mb-1 uppercase">
+                          <p className="text-xs text-neutral-400 font-semibold tracking-widest mb-1.5 uppercase">
                             {msg.status === 'success' ? 'Transfer Complete' : msg.status === 'pending' ? 'Transfer Pending' : 'Transfer Failed'}
                           </p>
-                          <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+                          <p className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
                             {msg.amount}
                           </p>
                         </div>
-                        <div className={`px-4 py-3 text-xs flex items-center justify-between font-medium ${
+                        <div className={`px-5 py-3.5 text-xs flex items-center justify-between font-medium ${
                           msg.status === 'success' ? 'bg-emerald-500/10 border-t border-emerald-500/20' :
                           msg.status === 'pending' ? 'bg-amber-500/10 border-t border-amber-500/20' :
                           'bg-red-500/10 border-t border-red-500/20'
                         }`}>
                           <span className="text-neutral-300 font-mono tracking-wider">{msg.txHash}</span>
-                          <a href="#" className="text-white hover:underline">View<ArrowUpRight className="inline w-3 h-3 ml-0.5" /></a>
+                          <a href="#" className="text-white hover:underline">View on Explorer<ArrowUpRight className="inline w-3.5 h-3.5 ml-0.5" /></a>
                         </div>
                      </div>
                    ) : (
-                     <div className={`px-4 py-3 rounded-2xl max-w-[85%] sm:max-w-md shadow-md text-[15px] leading-relaxed ${msg.sender === 'me' ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-neutral-800 text-neutral-100 rounded-tl-sm'}`}>
+                     <div className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-[20px] max-w-[85%] sm:max-w-md shadow-md text-[15px] leading-relaxed break-words ${msg.sender === 'me' ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-neutral-800 text-neutral-100 rounded-bl-sm'}`}>
                        <p>{msg.text}</p>
                      </div>
                    )}
-                   <span className="text-[10px] text-neutral-500 mt-1.5 mx-1 font-medium">{msg.timestamp}</span>
+                   <div className={`flex items-center gap-1.5 mt-1.5 mx-1.5 text-[10px] text-neutral-500 font-medium opacity-70 group-hover:opacity-100 transition-opacity ${msg.sender === 'me' ? 'flex-row-reverse' : 'flex-row'}`}>
+                     <span>{msg.timestamp}</span>
+                     {msg.sender === 'me' && <CheckCircle2 className="w-3 h-3 text-indigo-400" />}
+                   </div>
                  </div>
                  );
                })}
+               
+               {isTyping && (
+                 <div className="flex flex-col items-start max-w-full">
+                   <div className="px-4 py-3 sm:px-5 sm:py-3.5 rounded-[20px] rounded-bl-sm bg-neutral-800 shadow-md">
+                     <div className="flex gap-1.5 items-center h-4">
+                       <span className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                       <span className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                       <span className="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                     </div>
+                   </div>
+                 </div>
+               )}
+               <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
@@ -199,6 +257,7 @@ export function Chat() {
                     type="text" 
                     value={message}
                     onChange={e => setMessage(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
                     placeholder="Type a message..."
                     className="flex-1 bg-transparent border-none py-3 outline-none text-white placeholder-neutral-500"
                   />
@@ -207,7 +266,11 @@ export function Chat() {
                   </button>
                 </div>
                 
-                <button className="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex-shrink-0 disabled:opacity-50" disabled={!message.trim()}>
+                <button 
+                  onClick={handleSendMessage}
+                  className="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed" 
+                  disabled={!message.trim()}
+                >
                   <Send className="w-5 h-5" />
                 </button>
               </div>
