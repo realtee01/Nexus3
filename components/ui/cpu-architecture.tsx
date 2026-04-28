@@ -17,7 +17,7 @@ const CpuArchitecture = ({
   className,
   width = "100%",
   height = "100%",
-  text = "Nexus3",
+  text = "Nexchat3",
   showCpuConnections = true,
   animateText = true,
   lineMarkerSize = 18,

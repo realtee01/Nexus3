@@ -1,4 +1,4 @@
-# Nexus3 - Web3 Chat Platform
+# Nexchat3 - Web3 Chat Platform
 
 Modern Web3 platform that allows users to connect their crypto wallet and chat with other users using their wallet-based identity, and send/receive crypto directly inside chat messages.
 

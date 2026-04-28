@@ -45,9 +45,9 @@ export function TopNav() {
       <nav className="h-16 border-b border-white/10 flex items-center justify-between px-4 md:px-6 bg-black/60 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
         <Link to="/" className="flex items-center gap-2 group">
           <div className="w-10 h-10 p-0.5 rounded-lg border border-white/20 group-hover:border-white/40 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] flex items-center justify-center overflow-hidden bg-black flex-shrink-0">
-            <CpuArchitecture className="w-[120%] h-[120%]" text="Nexus3" lineMarkerSize={12} animateMarkers={false} showCpuConnections={false} />
+            <CpuArchitecture className="w-[120%] h-[120%]" text="Nexchat3" lineMarkerSize={12} animateMarkers={false} showCpuConnections={false} />
           </div>
-          <span className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Nexus3</span>
+          <span className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Nexchat3</span>
         </Link>
 
         <div className="flex items-center gap-3">

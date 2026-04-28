@@ -1,4 +1,4 @@
--- nexus3 backend schema (Supabase)
+-- nexchat3 backend schema (Supabase)
 
 -- Users table
 CREATE TABLE users (

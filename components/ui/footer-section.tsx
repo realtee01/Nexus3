@@ -20,7 +20,7 @@ const footerLinks: FooterSection[] = [
 	{
 		label: 'Ecosystem',
 		links: [
-			{ title: 'Nexus3 Network', href: '#' },
+			{ title: 'Nexchat3 Network', href: '#' },
 			{ title: 'Smart Contracts', href: '#' },
 			{ title: 'Decentralized Identity', href: '#' },
 			{ title: 'Tokenomics', href: '#' },
@@ -65,13 +65,13 @@ export function Footer() {
                         <div className="w-8 h-8 p-0.5 rounded-lg border border-white/20 flex items-center justify-center overflow-hidden bg-black flex-shrink-0">
                             <CpuArchitecture className="w-[120%] h-[120%]" text="N3" lineMarkerSize={12} animateMarkers={false} showCpuConnections={false} />
                         </div>
-                        <span className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Nexus3</span>
+                        <span className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Nexchat3</span>
                     </div>
 					<p className="text-neutral-400 mt-8 text-sm md:mt-0 max-w-xs">
 						Building the foundation for the decentralized web. Secure, scalable, and intuitive Web3 infrastructure.
 					</p>
 					<p className="text-neutral-500 text-sm mt-4">
-						© {new Date().getFullYear()} Nexus3 Foundation.
+						© {new Date().getFullYear()} Nexchat3 Foundation.
 					</p>
 				</AnimatedContainer>
 
